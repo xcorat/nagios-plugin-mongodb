@@ -21,6 +21,9 @@ In your Nagios plugins directory run
 
 <pre><code>git clone git://github.com/mzupan/nagios-plugin-mongodb.git</code></pre>
 
+For this fork,
+<pre><code>git clone git://github.com/xcorat/nagios-plugin-mongodb.git</code></pre>
+
 ## Usage
 
 ### Install in Nagios
