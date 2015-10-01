@@ -173,8 +173,10 @@ def main(argv):
 
     if action == 'replica_primary' and replicaset is None:
         return "replicaset must be passed in when using replica_primary check"
-    elif not action == 'replica_primary' and replicaset:
-        return "passing a replicaset while not checking replica_primary does not work"
+    # NOTE: It doesn't seem that setting a replicaset name while querying for checks
+    #    that doesn't require replicaset option could be a problem
+    #elif not action == 'replica_primary' and replicaset:
+    #    return "passing a replicaset while not checking replica_primary does not work"
 
     #
     # moving the login up here and passing in the connection
@@ -262,8 +264,11 @@ def main(argv):
 
 def mongo_connect(host=None, port=None, ssl=False, user=None, passwd=None, replica=None):
     try:
+        # Create the connection with read preferences set for newer versions
+        if pymongo.version >= "3.0":
+            con = pymongo.MongoClient(host, port, read_preference=pymongo.ReadPreference.SECONDARY, ssl=ssl, replicaSet=replica, socketTimeoutMS=10000)
         # ssl connection for pymongo > 2.3
-        if pymongo.version >= "2.3":
+        elif pymongo.version >= "2.3":
             if replica is None:
                 con = pymongo.MongoClient(host, port)
             else:
@@ -306,7 +311,10 @@ def exit_with_general_critical(e):
 
 
 def set_read_preference(db):
-    if pymongo.version >= "2.1":
+    if pymongo.version >= "3.0":
+        # Read preferences are set at the connection initiation
+        pass
+    elif pymongo.version >= "2.1":
         db.read_preference = pymongo.ReadPreference.SECONDARY
 
 
